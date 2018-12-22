@@ -1,18 +1,30 @@
+from datetime import datetime
 from xml.etree.ElementTree import XML
 import zipfile
 
 
 """
-Module that extract text from MS XML Word document (.docx).
-(Inspired by python-docx <https://github.com/mikemaccana/python-docx>)
+http://officeopenxml.com/WPtable.php
 """
 
 WORD_NAMESPACE = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+BODY = WORD_NAMESPACE + 'body'
+TABLE = WORD_NAMESPACE + 'tbl'
+ROW = WORD_NAMESPACE + 'tr'
+COL = WORD_NAMESPACE + 'tc'
+CELL = WORD_NAMESPACE + 'tbl'
 PARA = WORD_NAMESPACE + 'p'
 TEXT = WORD_NAMESPACE + 't'
 
+def extract_text(element):
+    text = ""
+    for paragraph in element.iter(PARA):
+        for i in paragraph.itertext():
+            text += i
+        text += " "
+    return text.strip()
 
-def get_docx_text(path):
+def extract_table_data(path):
     """
     Take the path of a docx file as argument, return the text in unicode.
     """
@@ -20,52 +32,54 @@ def get_docx_text(path):
     xml_content = document.read('word/document.xml')
     document.close()
     tree = XML(xml_content)
+    table = tree.find(BODY).find(TABLE)
+    rows = table.findall(ROW)
 
-    startJunk = True
-    section = 0 # 0: Code, 1: Course, 2: Day, 3: Calendar/Date, 4: Hour, 5: Teacher
-    day = ""    #Cell Merge makes day empty
-    date = ""   #Cell Merge makes date empty
-    paragraphs = []
-    for paragraph in tree.getiterator(PARA):
-        #print(type(paragraph))
-        value = ""
-        for i in paragraph.itertext():
-            value += i
+    day = ""
+    date = ""
 
-        if value == "Teacher":
-            startJunk = False
+    for row in rows:
+        cols = row.findall(COL)
+
+        #Code
+        code = extract_text(cols[0])
+        #print(code)
+
+        #course
+        course = extract_text(cols[1])
+        #print(course)
+
+        #day
+        dayTemp = extract_text(cols[2])
+        if dayTemp != "":
+            #datetime_object = datetime.strptime(dayTemp, '%b %d %Y %I:%M%p')
+            day = dayTemp
+            print(day)
+            #print(datetime_object)
+        #print(day)
+
+        #Calendar/Date
+        dateTemp = extract_text(cols[3])
+        if dateTemp != "":
+            date = dateTemp
+        #print(date)
+
+        #hour
+        hour = extract_text(cols[4])
+        #print(hour)
+
+        #Teachers
+        teacher = extract_text(cols[5])
+        #print(teacher)
+
+        if teacher == "":
             continue
 
-        if startJunk:   #Skip all Junk
-            continue
+        print(code, course, day, date, hour, teacher)
 
-        #Start Parse
-        print(value)
+    print(len(rows))
+    print("$$$$$$$$$$$")
 
-        if section == 0:
-            code = value
-        elif section == 1:
-            course = value
-        elif section == 2 and value != "":  #Merge cell show empty
-            day = value
-        elif section == 3 and value != "":
-            date = value
-        elif section == 4:
-            hour = value
-        elif section == 5:
-            teacher = value
+    return '\n\n'.join("paragraphs")
 
-        section += 1
-
-        if section == 6 and teacher != "":    #ProcessData for none empty lines
-            print(code, course, day, date, hour, teacher)
-
-        section = section % 6
-        #print(type(texts))
-        #print(texts)
-        #print("***")
-
-
-    return '\n\n'.join(paragraphs)
-
-tree = get_docx_text("Schedule.docx"); #Issues with full path .....
+tree = extract_table_data("Schedule.docx"); #Issues with full path .....
