@@ -20,7 +20,7 @@ class Teacher:
         print("\tTotal Time: ", self.total_time / 60, "hours")
         print("\tCourses:")
         for course in self.courses:
-            print("\t\t", course, self.course_time[course] / 60, "hours")
+            print("\t\t", self.courses[course][0].code, course, self.course_time[course] / 60, "hours")
             for segment in self.courses[course]:
                 for date in segment.dates:
                     d = date.strftime("%A, %d. %B %Y ")
