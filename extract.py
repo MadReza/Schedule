@@ -4,6 +4,7 @@ from time import strptime, strftime, mktime
 import re   #text splitting
 from xml.etree.ElementTree import XML
 import zipfile
+from teacher import Teacher, Segment
 
 
 """
@@ -110,30 +111,38 @@ def extract_table_data(path):
 
         #hour
         times = extract_time(cols[4])
-        #print(hour)
 
         #Teachers
         teacher = extract_text(cols[5])
-        #print(teacher)
 
         if teacher == "":
             continue
 
         if teacher not in teachers:
-            teachers[teacher] = []
+            teachers[teacher] = Teacher(teacher, course)
 
-        segment = {}
-        segment['code'] = code
-        segment['course'] = course
-        segment['day'] = day
-        segment['dates'] = dates
-        segment['times'] = times
+        segment = Segment(code, course, day, dates, times)
 
-        teachers[teacher].append(segment)
-
-
-    print(teachers)
+        teachers[teacher].add_segment(segment)
 
     return teachers
 
-tree = extract_table_data("Schedule.docx"); #Issues with full path .....
+def print_all(data):
+    for teacher in data.values():
+        print("Teacher: ", teacher.name)
+        print("\tCode: ", teacher.segments[0].code)
+        print("\tCourse: ", teacher.course)
+        print("\tTime: ", teacher.total_time / 60)
+        print("\tClasses:")
+        for segment in teacher.segments:
+            for date in segment.dates:
+                d = date.strftime("%A, %d. %B %Y ")
+                s = strftime("%I:%M%p", segment.times['start'] )
+                e = strftime("%I:%M%p", segment.times['end'])
+                t = segment.times['length']
+                print("\t\t", d, s, "to", e, "total:", t)#%I:%M%p
+
+        print("#####")
+
+data = extract_table_data("Schedule.docx"); #Issues with full path .....
+print_all(data)
