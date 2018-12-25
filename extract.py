@@ -119,7 +119,7 @@ def extract_table_data(path):
             continue
 
         if teacher not in teachers:
-            teachers[teacher] = Teacher(teacher, course)
+            teachers[teacher] = Teacher(teacher)
 
         segment = Segment(code, course, day, dates, times)
 
@@ -130,17 +130,19 @@ def extract_table_data(path):
 def print_all(data):
     for teacher in data.values():
         print("Teacher: ", teacher.name)
-        print("\tCode: ", teacher.segments[0].code)
-        print("\tCourse: ", teacher.course)
-        print("\tTime: ", teacher.total_time / 60)
-        print("\tClasses:")
-        for segment in teacher.segments:
-            for date in segment.dates:
-                d = date.strftime("%A, %d. %B %Y ")
-                s = strftime("%I:%M%p", segment.times['start'] )
-                e = strftime("%I:%M%p", segment.times['end'])
-                t = segment.times['length']
-                print("\t\t", d, s, "to", e, "total:", t)#%I:%M%p
+        #print("\tCode: ", teacher.segments[0].code)
+        #print("\tCourse: ", teacher.course)
+        print("\tTotal Time: ", teacher.total_time / 60, "hours")
+        print("\tCourses:")
+        for course in teacher.courses:
+            print("\t\t", course, teacher.course_time[course] / 60, "hours")
+            for segment in teacher.courses[course]:
+                for date in segment.dates:
+                    d = date.strftime("%A, %d. %B %Y ")
+                    s = strftime("%I:%M%p", segment.times['start'] )
+                    e = strftime("%I:%M%p", segment.times['end'])
+                    t = segment.times['length']
+                    print("\t\t\t", d, s, "to", e, "total:", t, "minutes")#%I:%M%p
 
         print("#####")
 
