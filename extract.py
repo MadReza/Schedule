@@ -126,11 +126,3 @@ def extract_table_data(path):
         teachers[teacher].add_segment(segment)
 
     return teachers
-
-def print_all(data):
-    for teacher in data.values():
-        teacher.print()
-        print("############################")
-
-#data = extract_table_data("Schedule.docx"); #Issues with full path .....
-#print_all(data)

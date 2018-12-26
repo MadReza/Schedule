@@ -7,7 +7,7 @@ from oauth2client import file, client, tools
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 
-def create_event(calendarID, summary, location, description, startTime, endTime, timeZone, colorId):
+def create_event(calendarID, summary, location, description, startTime, endTime, timeZone="America/Montreal", colorId="NA"):
     """
     returns events resource: https://developers.google.com/calendar/v3/reference/events#resource
     More Info: https://developers.google.com/calendar/v3/reference/events/insert
@@ -40,7 +40,7 @@ def create_event(calendarID, summary, location, description, startTime, endTime,
     event = service.events().insert(calendarId=calendarID, body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
-def create_calendar(summary, description, timeZone):
+def create_calendar(summary, description, timeZone="America/Montreal"):
     """
     returns calendar object: https://developers.google.com/calendar/v3/reference/calendars#resource
     """
@@ -52,9 +52,9 @@ def create_calendar(summary, description, timeZone):
     service = build('calendar', 'v3', http=creds.authorize(Http()))
 
     calendar = {
-        "summary": "GIM",
-        "description": "Cegep Gim courses",
-        "timeZone": "America/Montreal",
+        "summary": summary,
+        "description": description,
+        "timeZone": timeZone,
     }
 
     created_calendar = service.calendars().insert(body=calendar).execute()
