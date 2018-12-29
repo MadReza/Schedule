@@ -4,6 +4,25 @@ from extract import extract_table_data
 from calendarHelper import create_event, create_calendar, get_calendars
 from time import strftime
 
+def get_Color():
+    colorId = 0
+    while colorId < 1 or colorId > 11:
+        os.system('clear')
+        print("Colors: ")
+        print("\t1 blue")
+        print("\t2 green")
+        print("\t3 purple")
+        print("\t4 red")
+        print("\t5 yellow")
+        print("\t6 orange")
+        print("\t7 turquoise")
+        print("\t8 gray")
+        print("\t9 bold blue")
+        print("\t10 bold green")
+        print("\t11 bold red")
+        colorId = int(input("What Color would you like: "))
+    return colorId
+
 def print_all(data):
     for teacher in data.values():
         teacher.print()
@@ -20,7 +39,7 @@ def get_or_create_calendar(name, description):
     else:
         return c["GIM"]
 
-def create_calendar_events(calendar, group, num, data):
+def create_calendar_events(calendar, group, num, data, colorId):
 
     for course in data.courses:
         summary = group + " " + num + ": " + course
@@ -33,7 +52,7 @@ def create_calendar_events(calendar, group, num, data):
                 e = strftime("%H:%M:%S", segment.times['end'])
                 startTime = d + s
                 endTime = d + e
-                create_event(calendar, summary, location, description, startTime, endTime)
+                create_event(calendar, summary, location, description, startTime, endTime, "America/Montreal", colorId)
 
 def run(path):
     data = extract_table_data(path); #Issues with full path .....
@@ -57,10 +76,11 @@ def run(path):
             print("Exporting to Google Calendar")
             group = input("What group are they(MAD, CST,...):")
             num = input("What group number are they:")
+            colorId = get_Color()
             print("Finding or creating calendar: GIM")
             id = get_or_create_calendar("GIM", "Cegep GIM courses")
             print("Creating Events")
-            create_calendar_events(id, group, num, data[selected_teacher])
+            create_calendar_events(id, group, num, data[selected_teacher], colorId)
             print("DONE")
 
 def main(argv):

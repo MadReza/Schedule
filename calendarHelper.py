@@ -37,6 +37,9 @@ def create_event(calendarID, summary, location, description, startTime, endTime,
         },
     }
 
+    if colorId != "NA":
+        event['colorId'] = colorId
+
     event = service.events().insert(calendarId=calendarID, body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
